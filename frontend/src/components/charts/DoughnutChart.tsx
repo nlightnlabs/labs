@@ -37,12 +37,11 @@ export const DoughnutChart: React.FC<DoughnutChartProps> = ({
       top: '45%',
       style: {
         text: total.toLocaleString(),
-        textAlign: 'center',
         fill: '#333',
         fontSize: 24,
         fontWeight: 'bold',
       },
-    },
+    } as any,
     series: [
       {
         type: 'pie',

@@ -84,10 +84,7 @@ export const CorrelationMatrixChart: React.FC<CorrelationMatrixChartProps> = ({
           show: true,
           formatter: (params: any) => params.value[2].toFixed(2),
           fontSize: 9,
-          color: (params: any) => {
-            const val = Math.abs(params.value[2]);
-            return val > 0.5 ? '#fff' : '#333';
-          },
+          color: '#333',
         },
         emphasis: {
           itemStyle: {

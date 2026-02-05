@@ -58,8 +58,8 @@ const themeSlice = createSlice({
 export const { setThemeMode, setCustomColors, toggleTheme, cycleTheme } = themeSlice.actions;
 
 // Selector to get the actual base theme (light or dark)
-export const selectActualTheme = (state: { theme: ThemeState }): 'light' | 'dark' => {
-  const mode = state.theme.mode;
+export const selectActualTheme = (state: { theme?: ThemeState }): 'light' | 'dark' => {
+  const mode = state.theme?.mode ?? 'system';
   if (mode === 'system') {
     return getSystemTheme();
   }
@@ -71,8 +71,8 @@ export const selectActualTheme = (state: { theme: ThemeState }): 'light' | 'dark
 };
 
 // Selector to get the theme class to apply
-export const selectThemeClass = (state: { theme: ThemeState }): string => {
-  const mode = state.theme.mode;
+export const selectThemeClass = (state: { theme?: ThemeState }): string => {
+  const mode = state.theme?.mode ?? 'system';
   if (mode === 'system') {
     return getSystemTheme();
   }
