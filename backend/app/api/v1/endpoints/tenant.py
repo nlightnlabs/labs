@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import text
 from pydantic import BaseModel
 
-from app.utils.database import get_db
+from app.utils.database import get_db, get_base_db
 from app.utils.storage import reset_storage_provider
 from app.config import (
     get_tenant_state,
@@ -20,6 +20,9 @@ from app.config import (
     _DEFAULT_DBPORT,
     _DEFAULT_AWS_REGION,
     _DEFAULT_AWS_PROFILE,
+    _DEFAULT_S3_BUCKET,
+    _DEFAULT_S3_ROOT_PREFIX,
+    _DEFAULT_DEFAULTDB,
 )
 
 router = APIRouter()
@@ -49,17 +52,18 @@ class TenantInfo(BaseModel):
 
 # ============== Constants ==============
 
-# Base database for tenant lookup (always use this for lookups)
-BASE_DB_HOST = "tenant-rds.c5ws0iyoa9k7.us-west-2.rds.amazonaws.com"
+# Base database name for tenant lookup (always use this for lookups)
+# The host is configured via environment variables in database.py
 BASE_DB_NAME = "base"
 
 # Default tenant configuration (for localhost development)
+# Uses environment variables to match the configured database
 DEFAULT_TENANT = TenantConfig(
     tenant_name="base-tenant",
-    db_host="tenant-rds.c5ws0iyoa9k7.us-west-2.rds.amazonaws.com",
-    db_name="base_tenant_main",
-    s3_bucket="tenants-s3",
-    s3_root_prefix="base-tenant/",
+    db_host=_DEFAULT_DBHOST,
+    db_name=_DEFAULT_DEFAULTDB or "main",
+    s3_bucket=_DEFAULT_S3_BUCKET or "tenants-s3",
+    s3_root_prefix=_DEFAULT_S3_ROOT_PREFIX or "base-tenant/",
 )
 
 
@@ -145,7 +149,7 @@ async def lookup_tenant(tenant_name: str, db: Session) -> Optional[TenantInfo]:
 @router.post("/config", response_model=TenantConfigResponse)
 async def get_tenant_config(
     request: Request,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_base_db),
 ):
     """
     Determine and configure tenant based on request origin.

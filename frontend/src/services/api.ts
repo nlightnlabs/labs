@@ -15,6 +15,7 @@ import {
   SAMLProvider,
   ApiResponse,
   PaginatedResponse,
+  TenantConfig,
 } from '@/types';
 
 // Create axios instance
@@ -303,6 +304,28 @@ export const tablesApi = {
       query,
       db_name: dbName,
     }),
+};
+
+// Tenant API
+export const tenantApi = {
+  /**
+   * Initialize tenant configuration based on current origin.
+   * Should be called when the app loads.
+   */
+  initConfig: () =>
+    api.post<TenantConfig>('/tenant/config'),
+
+  /**
+   * Get current tenant configuration.
+   */
+  getCurrentConfig: () =>
+    api.get<TenantConfig>('/tenant/current'),
+
+  /**
+   * Get full globals state (for debugging).
+   */
+  getGlobals: () =>
+    api.get('/tenant/globals'),
 };
 
 export default api;

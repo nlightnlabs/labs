@@ -30,3 +30,4 @@ class Portco(Base, UUIDMixin, TimestampMixin):
     # Relationships
     members = relationship("PortcoMember", back_populates="portco", lazy="dynamic")
     files = relationship("File", back_populates="portco", lazy="dynamic")
+    analysis_jobs = relationship("AnalysisJob", back_populates="portco", lazy="dynamic")

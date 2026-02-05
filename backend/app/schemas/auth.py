@@ -10,7 +10,9 @@ class LoginRequest(BaseModel):
     """Schema for login request."""
     model_config = {"populate_by_name": True}
 
-    email: EmailStr
+    # Accept either username or email for login
+    username: Optional[str] = Field(None, description="Username for login")
+    email: Optional[str] = Field(None, description="Email for login")
     password: str
     remember_me: bool = Field(False, alias="rememberMe")
 

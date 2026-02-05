@@ -17,7 +17,7 @@ class FunSettings(Base, UUIDMixin, TimestampMixin):
     preferences = Column(JSONB, nullable=True)
 
     # Relationships
-    user = relationship("User", back_populates="fun_settings")
+    user = relationship("User")
 
 
 class FunAgent(Base, UUIDMixin, TimestampMixin):

@@ -25,7 +25,7 @@ class Session(Base, UUIDMixin, TimestampMixin):
     expires_at = Column(DateTime, nullable=False)
 
     # Relationships
-    user = relationship("User", back_populates="sessions")
+    user = relationship("User")
 
     def __repr__(self) -> str:
         return f"<Session user_id={self.user_id}>"

@@ -3,8 +3,9 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from './store';
-import { useAppSelector } from './store/hooks';
+import { useAppSelector, useAppDispatch } from './store/hooks';
 import { selectThemeClass } from './store/slices/themeSlice';
+import { initializeTenant } from './store/slices/tenantSlice';
 
 // Layout
 import { Layout } from './components/layout';
@@ -48,6 +49,27 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
 // All available theme classes
 const themeClasses = ['light', 'dark', 'ocean', 'forest', 'blossom', 'sunset'];
+
+// Tenant Initializer Component
+const TenantInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    // Initialize tenant on app load
+    dispatch(initializeTenant())
+      .unwrap()
+      .then((config) => {
+        console.log('[App] Tenant initialization complete:', config.tenant_name);
+      })
+      .catch((err) => {
+        console.error('[App] Tenant initialization failed:', err);
+      });
+  }, [dispatch]);
+
+  // Render children immediately since the app can function
+  // while tenant config is being fetched
+  return <>{children}</>;
+};
 
 // Theme Provider Component
 const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -159,7 +181,9 @@ const App: React.FC = () => {
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
         <BrowserRouter>
-          <AppRoutes />
+          <TenantInitializer>
+            <AppRoutes />
+          </TenantInitializer>
         </BrowserRouter>
       </PersistGate>
     </Provider>

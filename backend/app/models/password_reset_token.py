@@ -23,7 +23,7 @@ class PasswordResetToken(Base, UUIDMixin, TimestampMixin):
     used_at = Column(DateTime, nullable=True)
 
     # Relationships
-    user = relationship("User", back_populates="password_reset_tokens")
+    user = relationship("User")
 
     def __repr__(self) -> str:
         return f"<PasswordResetToken user_id={self.user_id}>"

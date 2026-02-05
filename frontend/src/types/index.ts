@@ -3,19 +3,25 @@ export type UserRole = 'admin' | 'manager' | 'user';
 
 export interface User {
   id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
+  email?: string;
+  username?: string;
+  firstName?: string;
+  lastName?: string;
   avatarUrl?: string;
-  phone?: string;
+  mobilePhone?: string;
+  jobTitle?: string;
+  companyName?: string;
+  tenantName?: string;
+  accessLevel?: string;
+  businessUnit?: string;
+  userType?: string;
+  status?: string;
+  stage?: string;
   role: UserRole;
   isActive: boolean;
   isVerified: boolean;
-  emailVerifiedAt?: string;
-  organizationId: string;
-  createdAt: string;
-  updatedAt: string;
-  lastLoginAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface UserPreferences {
@@ -64,7 +70,8 @@ export interface AuthState {
 }
 
 export interface LoginCredentials {
-  email: string;
+  username?: string;
+  email?: string;
   password: string;
   rememberMe?: boolean;
 }
@@ -250,3 +257,21 @@ export interface FormFieldState {
 }
 
 export type FormState<T extends string> = Record<T, FormFieldState>;
+
+// Tenant Types
+export interface TenantConfig {
+  tenant_name: string;
+  db_host: string;
+  db_name: string;
+  s3_bucket: string;
+  s3_root_prefix: string;
+  aws_region: string;
+  initialized: boolean;
+}
+
+export interface TenantState {
+  config: TenantConfig | null;
+  isLoading: boolean;
+  isInitialized: boolean;
+  error: string | null;
+}

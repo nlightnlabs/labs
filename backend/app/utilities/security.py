@@ -71,7 +71,7 @@ def create_access_token(
     if additional_claims:
         to_encode.update(additional_claims)
 
-    return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
+    return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 
 
 def create_refresh_token(
@@ -94,7 +94,7 @@ def create_refresh_token(
         "jti": secrets.token_urlsafe(32),  # Unique token ID for revocation
     }
 
-    return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
+    return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 
 
 def decode_token(token: str) -> Optional[dict[str, Any]]:
@@ -103,7 +103,7 @@ def decode_token(token: str) -> Optional[dict[str, Any]]:
         payload = jwt.decode(
             token,
             settings.SECRET_KEY,
-            algorithms=[settings.JWT_ALGORITHM]
+            algorithms=[settings.ALGORITHM]
         )
         return payload
     except JWTError:

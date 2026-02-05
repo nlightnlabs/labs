@@ -17,7 +17,6 @@ class Organization(Base, UUIDMixin, TimestampMixin):
     settings = Column(JSONB, default=dict, nullable=False)
 
     # Relationships
-    users = relationship("User", back_populates="organization")
     saml_providers = relationship(
         "SAMLProvider",
         back_populates="organization",

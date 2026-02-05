@@ -12,7 +12,7 @@ export const LoginForm: React.FC = () => {
   const { isLoading, error } = useAppSelector((state) => state.auth);
 
   const [formData, setFormData] = useState({
-    email: '',
+    identifier: '', // Can be username or email
     password: '',
     rememberMe: false,
   });
@@ -22,10 +22,8 @@ export const LoginForm: React.FC = () => {
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.email) {
-      newErrors.email = t('auth.errors.emailRequired');
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = t('auth.errors.emailInvalid');
+    if (!formData.identifier) {
+      newErrors.identifier = t('auth.errors.usernameOrEmailRequired', 'Username or email is required');
     }
 
     if (!formData.password) {
@@ -42,8 +40,16 @@ export const LoginForm: React.FC = () => {
 
     if (!validateForm()) return;
 
+    // Determine if identifier is email or username
+    const isEmail = formData.identifier.includes('@');
+    const credentials = {
+      ...(isEmail ? { email: formData.identifier } : { username: formData.identifier }),
+      password: formData.password,
+      rememberMe: formData.rememberMe,
+    };
+
     try {
-      await dispatch(login(formData)).unwrap();
+      await dispatch(login(credentials)).unwrap();
       navigate('/dashboard');
     } catch {
       // Error is handled by Redux
@@ -92,14 +98,14 @@ export const LoginForm: React.FC = () => {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <Input
-              label={t('auth.email')}
-              type="email"
-              name="email"
-              value={formData.email}
+              label={t('auth.usernameOrEmail', 'Username or Email')}
+              type="text"
+              name="identifier"
+              value={formData.identifier}
               onChange={handleChange}
-              error={errors.email}
-              placeholder="you@example.com"
-              autoComplete="email"
+              error={errors.identifier}
+              placeholder="username or you@example.com"
+              autoComplete="username"
             />
 
             <Input

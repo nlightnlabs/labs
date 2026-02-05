@@ -35,4 +35,4 @@ class PortcoMember(Base, UUIDMixin, TimestampMixin):
 
     # Relationships
     portco = relationship("Portco", back_populates="members")
-    user = relationship("User", back_populates="portco_memberships")
+    user = relationship("User")

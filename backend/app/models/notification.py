@@ -28,7 +28,7 @@ class Notification(Base, UUIDMixin, TimestampMixin):
     read_at = Column(DateTime, nullable=True)
 
     # Relationships
-    user = relationship("User", back_populates="notifications")
+    user = relationship("User")
 
     def __repr__(self) -> str:
         return f"<Notification {self.title}>"

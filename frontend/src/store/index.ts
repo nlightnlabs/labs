@@ -16,6 +16,7 @@ import authReducer from '@/features/auth/slices/authSlice';
 import navigationReducer from './slices/navigationSlice';
 import themeReducer from './slices/themeSlice';
 import notificationsReducer from './slices/notificationsSlice';
+import tenantReducer from './slices/tenantSlice';
 
 // Root reducer
 const rootReducer = combineReducers({
@@ -23,6 +24,7 @@ const rootReducer = combineReducers({
   navigation: navigationReducer,
   theme: themeReducer,
   notifications: notificationsReducer,
+  tenant: tenantReducer,
 });
 
 // Persist configuration
@@ -30,7 +32,7 @@ const persistConfig = {
   key: 'saas-app',
   version: 1,
   storage,
-  whitelist: ['auth', 'navigation', 'theme'], // Only persist these reducers
+  whitelist: ['auth', 'navigation', 'theme', 'tenant'], // Only persist these reducers
   blacklist: ['notifications'], // Don't persist notifications
 };
 
