@@ -61,7 +61,7 @@ BASE_DB_NAME = "base"
 DEFAULT_TENANT = TenantConfig(
     tenant_name="base-tenant",
     db_host=_DEFAULT_DBHOST,
-    db_name=_DEFAULT_DEFAULTDB or "main",
+    db_name=_DEFAULT_DEFAULTDB or "base_tenant_main",
     s3_bucket=_DEFAULT_S3_BUCKET or "tenants-s3",
     s3_root_prefix=_DEFAULT_S3_ROOT_PREFIX or "base-tenant/",
 )

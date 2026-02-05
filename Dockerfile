@@ -35,9 +35,14 @@ ENV DBHOST=tenant-rds.clwbltzci0fj.us-west-1.rds.amazonaws.com
 ENV DBUSER=dbadmin
 ENV DBPORT=5432
 ENV AWS_REGION=us-west-1
-ENV DBDATABASE=base
+# Default tenant database (used for all operations after tenant config is resolved)
+ENV DEFAULT_DB=base_tenant_main
 ENV S3_BUCKET=nlightnlabs-tenants-s3
 ENV S3_ROOT_PREFIX=tenants/base-tenant/
+# Base database for tenant lookups only (queries data.tenants table)
+ENV BASE_DB_HOST=tenant-rds.clwbltzci0fj.us-west-1.rds.amazonaws.com
+ENV BASE_DB_NAME=base
+ENV BASE_DB_USER=dbadmin
 
 WORKDIR /app
 
@@ -95,7 +100,7 @@ server {
     }
 
     location /api/ {
-        proxy_pass http://127.0.0.1:8000/;
+        proxy_pass http://127.0.0.1:8000/api/;
     }
 }
 EOF
