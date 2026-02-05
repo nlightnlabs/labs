@@ -1,0 +1,254 @@
+{
+  "common": {
+    "appName": "SaaS App",
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "update": "Update",
+    "submit": "Submit",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "actions": "Actions",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "yes": "Yes",
+    "no": "No",
+    "all": "All",
+    "none": "None",
+    "error": "Error",
+    "success": "Success",
+    "warning": "Warning",
+    "info": "Info"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "settings": "Settings",
+    "collapse": "Collapse",
+    "expand": "Expand",
+    "data": "Data",
+    "app1": "Application 1",
+    "app2": "Application 2",
+    "app3": "Application 3"
+  },
+  "modules": {
+    "tabs": {
+      "summary": "Summary",
+      "insights": "Insights",
+      "data": "Data",
+      "actions": "Actions",
+      "settings": "Settings"
+    },
+    "kpi": {
+      "totalRevenue": "Total Revenue",
+      "activeUsers": "Active Users",
+      "conversionRate": "Conversion Rate",
+      "avgSessionTime": "Avg Session Time"
+    },
+    "charts": {
+      "revenueOverTime": "Revenue Over Time",
+      "userGrowth": "User Growth",
+      "topProducts": "Top Products",
+      "regionBreakdown": "Region Breakdown",
+      "salesFunnel": "Sales Funnel",
+      "performanceTrends": "Performance Trends"
+    },
+    "insights": {
+      "title": "Insights",
+      "description": "View detailed insights and analytics for this module.",
+      "noData": "No insights available yet."
+    },
+    "data": {
+      "title": "Data",
+      "description": "Explore and manage raw data for this module.",
+      "noData": "No data available yet."
+    },
+    "actions": {
+      "title": "Actions",
+      "description": "Configure and manage actions for this module.",
+      "noActions": "No actions configured yet."
+    },
+    "settings": {
+      "title": "Settings",
+      "description": "Manage users, roles, permissions, and application settings."
+    }
+  },
+  "header": {
+    "searchPlaceholder": "Search...",
+    "notifications": "Notifications",
+    "noNotifications": "No notifications",
+    "viewAllNotifications": "View all notifications",
+    "viewProfile": "View Profile",
+    "settings": "Settings",
+    "help": "Help & Documentation",
+    "signOut": "Sign Out"
+  },
+  "auth": {
+    "login": "Sign In",
+    "register": "Sign Up",
+    "logout": "Sign Out",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "createAccount": "Create an account",
+    "signInToAccount": "Sign in to your account",
+    "acceptTerms": "I accept the Terms of Service and Privacy Policy",
+    "resetPassword": "Reset Password",
+    "sendResetLink": "Send Reset Link",
+    "backToLogin": "Back to Sign In",
+    "resetEmailSent": "Password reset email sent",
+    "checkEmail": "Please check your email for a reset link",
+    "newPassword": "New Password",
+    "setNewPassword": "Set New Password",
+    "passwordChanged": "Password successfully changed",
+    "verifyEmail": "Verify Email",
+    "emailVerified": "Email verified successfully",
+    "verifyingEmail": "Verifying your email...",
+    "errors": {
+      "invalidCredentials": "Invalid email or password",
+      "emailRequired": "Email is required",
+      "emailInvalid": "Please enter a valid email",
+      "passwordRequired": "Password is required",
+      "passwordMinLength": "Password must be at least 8 characters",
+      "passwordRequirements": "Password must contain uppercase, lowercase, number, and special character",
+      "passwordMismatch": "Passwords do not match",
+      "firstNameRequired": "First name is required",
+      "lastNameRequired": "Last name is required",
+      "acceptTermsRequired": "You must accept the terms and conditions",
+      "accountLocked": "Account locked. Please try again in 15 minutes",
+      "emailAlreadyExists": "An account with this email already exists"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome back, {{name}}!",
+    "welcomeMessage": "Here's what's happening with your account today.",
+    "quickStats": "Quick Stats",
+    "recentActivity": "Recent Activity",
+    "noActivity": "No recent activity",
+    "quickActions": "Quick Actions",
+    "viewAll": "View All",
+    "stats": {
+      "totalUsers": "Total Users",
+      "activeUsers": "Active Users",
+      "totalSessions": "Total Sessions",
+      "storageUsed": "Storage Used"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "profile": {
+      "title": "Profile Settings",
+      "subtitle": "Manage your personal information",
+      "avatar": "Profile Picture",
+      "changeAvatar": "Change Picture",
+      "removeAvatar": "Remove",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email Address",
+      "phone": "Phone Number",
+      "timezone": "Timezone",
+      "language": "Language",
+      "updated": "Profile updated successfully"
+    },
+    "account": {
+      "title": "Account Settings",
+      "subtitle": "Manage your account security",
+      "changePassword": "Change Password",
+      "currentPassword": "Current Password",
+      "newPassword": "New Password",
+      "confirmNewPassword": "Confirm New Password",
+      "twoFactor": "Two-Factor Authentication",
+      "twoFactorEnabled": "2FA is enabled",
+      "twoFactorDisabled": "2FA is disabled",
+      "enable2FA": "Enable 2FA",
+      "disable2FA": "Disable 2FA",
+      "sessions": "Active Sessions",
+      "currentSession": "Current Session",
+      "revokeSession": "Revoke",
+      "revokeAllSessions": "Revoke All Other Sessions",
+      "deleteAccount": "Delete Account",
+      "deleteAccountWarning": "This action cannot be undone. All your data will be permanently deleted.",
+      "confirmDelete": "Type DELETE to confirm"
+    },
+    "preferences": {
+      "title": "Preferences",
+      "subtitle": "Customize your experience",
+      "theme": "Theme",
+      "themeLight": "Light",
+      "themeDark": "Dark",
+      "themeSystem": "System",
+      "language": "Language",
+      "notifications": "Notification Preferences",
+      "emailNotifications": "Email Notifications",
+      "inAppNotifications": "In-App Notifications",
+      "marketingEmails": "Marketing Emails",
+      "securityAlerts": "Security Alerts"
+    },
+    "organization": {
+      "title": "Organization Settings",
+      "subtitle": "Manage your organization",
+      "name": "Organization Name",
+      "slug": "Organization Slug",
+      "logo": "Organization Logo",
+      "sso": "SSO Configuration",
+      "ssoEnabled": "SSO is enabled",
+      "ssoDisabled": "SSO is disabled",
+      "addProvider": "Add SSO Provider",
+      "providerName": "Provider Name",
+      "entityId": "Entity ID",
+      "ssoUrl": "SSO URL",
+      "certificate": "X.509 Certificate",
+      "defaultRole": "Default User Role",
+      "roles": {
+        "admin": "Admin",
+        "manager": "Manager",
+        "user": "User"
+      }
+    },
+    "apiKeys": {
+      "title": "API Keys",
+      "subtitle": "Manage your API keys",
+      "create": "Create API Key",
+      "name": "Key Name",
+      "prefix": "Key Prefix",
+      "created": "Created",
+      "lastUsed": "Last Used",
+      "expires": "Expires",
+      "never": "Never",
+      "revoke": "Revoke",
+      "newKeyWarning": "Make sure to copy your API key now. You won't be able to see it again!"
+    }
+  },
+  "validation": {
+    "required": "This field is required",
+    "email": "Please enter a valid email address",
+    "minLength": "Must be at least {{min}} characters",
+    "maxLength": "Must be no more than {{max}} characters",
+    "passwordMatch": "Passwords must match",
+    "invalidFormat": "Invalid format"
+  },
+  "errors": {
+    "general": "Something went wrong. Please try again.",
+    "network": "Network error. Please check your connection.",
+    "unauthorized": "You are not authorized to perform this action.",
+    "notFound": "The requested resource was not found.",
+    "serverError": "Server error. Please try again later."
+  }
+}
