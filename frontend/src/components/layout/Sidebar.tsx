@@ -47,6 +47,11 @@ const icons: Record<string, React.FC<{ className?: string }>> = {
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
     </svg>
   ),
+  chat: ({ className }) => (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+    </svg>
+  ),
   data: ({ className }) => (
     <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
@@ -162,7 +167,7 @@ export const Sidebar: React.FC = () => {
         <div className="hidden lg:block p-3 border-b" style={{ borderColor: 'var(--border-default)' }}>
           <button
             onClick={handleToggleCollapse}
-            className={`nav-item w-full ${isCollapsed ? 'justify-center px-2' : ''}`}
+            className={`nav-item w-full ${isCollapsed ? 'justify-center px-2' : 'justify-end pr-2'}`}
             aria-label={isCollapsed ? t('nav.expand') : t('nav.collapse')}
           >
             {isCollapsed ? (
@@ -170,7 +175,7 @@ export const Sidebar: React.FC = () => {
             ) : (
               <>
                 <icons.chevronLeft className="w-5 h-5" />
-                <span>{t('nav.collapse')}</span>
+                {/* <span>{t('nav.collapse')}</span> */}
               </>
             )}
           </button>

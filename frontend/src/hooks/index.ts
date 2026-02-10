@@ -183,3 +183,6 @@ export const useIsDesktop = () => useMediaQuery('(min-width: 1024px)');
 
 // Re-export tenant hook
 export { useTenantConfig } from './useTenantConfig';
+
+// Re-export user avatar hook
+export { useUserAvatar } from './useUserAvatar';

@@ -91,6 +91,7 @@
 
   /* Background Colors */
   --bg-page: #F9FAFB;
+  --bg-secondary: #EDF0F4;  /* Slightly darker than page for sidebars/panels */
   --bg-card: #FFFFFF;
   --bg-elevated: #FFFFFF;
   --bg-input: #FFFFFF;
@@ -252,6 +253,7 @@
 .dark {
   /* Background Colors */
   --bg-page: #111827;
+  --bg-secondary: #1E293B;  /* Slightly lighter than page for sidebars/panels */
   --bg-card: #1F2937;
   --bg-elevated: #374151;
   --bg-input: #1F2937;
@@ -396,6 +398,7 @@ body {
 
   /* Background Colors */
   --bg-page: #F0F9FF;
+  --bg-secondary: #E0F2FE;  /* Slightly darker than page for sidebars/panels */
   --bg-card: #FFFFFF;
   --bg-elevated: #FFFFFF;
   --bg-input: #FFFFFF;
@@ -441,6 +444,7 @@ body {
 
   /* Background Colors */
   --bg-page: #ECFDF5;
+  --bg-secondary: #D1FAE5;  /* Slightly darker than page for sidebars/panels */
   --bg-card: #FFFFFF;
   --bg-elevated: #FFFFFF;
   --bg-input: #FFFFFF;
@@ -486,6 +490,7 @@ body {
 
   /* Background Colors */
   --bg-page: #FDF4FF;
+  --bg-secondary: #FAE8FF;  /* Slightly darker than page for sidebars/panels */
   --bg-card: #FFFFFF;
   --bg-elevated: #FFFFFF;
   --bg-input: #FFFFFF;
@@ -531,6 +536,7 @@ body {
 
   /* Background Colors */
   --bg-page: #FFF7ED;
+  --bg-secondary: #FFEDD5;  /* Slightly darker than page for sidebars/panels */
   --bg-card: #FFFFFF;
   --bg-elevated: #FFFFFF;
   --bg-input: #FFFFFF;

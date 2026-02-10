@@ -81,45 +81,41 @@ import re
 
 def to_json(value):
     """
-    Safely converts Python dicts, lists, or stringified dicts to valid JSON strings.
+    Safely converts values to Python objects for PostgreSQL JSON/JSONB columns.
+    asyncpg handles Python dicts/lists directly for JSONB columns.
     Accepts:
-      - dict or list → json.dumps()
-      - valid JSON string → return as-is
-      - Python-style string "{'a': 1}" → auto-convert to proper JSON
+      - dict or list → return as-is (asyncpg handles serialization)
+      - valid JSON string → parse to Python object
+      - Python-style string "{'a': 1}" → parse to Python object
     """
     if value is None:
         return None
 
-    # Case 1: already a dict or list
+    # Case 1: already a dict or list - return as-is for asyncpg
     if isinstance(value, (dict, list)):
-        return json.dumps(value)
+        return value
 
-    # Case 2: string handling
+    # Case 2: string handling - parse to Python object
     if isinstance(value, str):
-        # ✅ If it's already valid JSON, return as-is
+        # Try to parse as valid JSON
         try:
-            json.loads(value)
-            return value
+            return json.loads(value)
         except json.JSONDecodeError:
             pass  # Try to fix it below
 
-        # ✅ If it's a Python-style dict (single quotes), normalize it
+        # If it's a Python-style dict (single quotes), normalize and parse
         if re.match(r"^{'.*':", value.strip()):
             fixed = value.replace("'", '"')
             try:
-                json.loads(fixed)
-                return fixed
+                return json.loads(fixed)
             except json.JSONDecodeError:
                 raise ValueError(f"Could not normalize Python-style dict to JSON: {value}")
 
-        # ✅ As a last resort, dump the raw string into JSON
-        return json.dumps(value)
+        # Return the raw string wrapped in a JSON-compatible format
+        return value
 
-    # Case 3: fallback for any other type (int, float, etc.)
-    try:
-        return json.dumps(value)
-    except Exception as e:
-        raise ValueError(f"Unsupported type for JSON field: {type(value)} ({e})")
+    # Case 3: fallback for any other type (int, float, bool, etc.)
+    return value
 
 
 def to_bytes(value):
@@ -209,17 +205,17 @@ postgres_type_map = [
     "description": "Variable-length string",
     "example_input": "hello world"
   },
-   {
-    "data_type": "varchar",
+  {
+    "data_type": "character varying",
     "converter": "to_str",
-    "description": "Unlimited length string",
-    "example_input": "42"
+    "description": "Variable-length string (PostgreSQL canonical name)",
+    "example_input": "hello world"
   },
-   {
-    "data_type": "char",
+  {
+    "data_type": "character",
     "converter": "to_str",
-    "description": "Unlimited length string",
-    "example_input": "42"
+    "description": "Fixed-length string (PostgreSQL canonical name)",
+    "example_input": "hello world"
   },
   {
     "data_type": "text",

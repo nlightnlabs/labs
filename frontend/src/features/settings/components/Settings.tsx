@@ -12,10 +12,10 @@ export const Settings: React.FC = () => {
   const { user } = useAppSelector((state) => state.auth);
 
   const tabs = [
-    { id: 'profile', label: t('settings.profile.title') },
-    { id: 'account', label: t('settings.account.title') },
-    { id: 'preferences', label: t('settings.preferences.title') },
-    ...(user?.role === 'admin' ? [{ id: 'organization', label: t('settings.organization.title') }] : []),
+    { id: 'profile', label: 'Profile' },
+    { id: 'account', label: 'Account' },
+    { id: 'preferences', label: 'Preferences' },
+    ...(user?.role === 'admin' ? [{ id: 'organization', label: 'Organization' }] : []),
   ];
 
   return (

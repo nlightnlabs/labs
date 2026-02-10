@@ -1,7 +1,7 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { Card, Button } from '@/components/common';
 import * as XLSX from 'xlsx';
-import api from '@/services/api';
+import { s3Api, tablesApi } from '@/services/api';
 
 // Standard taxonomy fields for mapping
 const STANDARD_TAXONOMY_FIELDS = [
@@ -137,23 +137,23 @@ export const FileUpload: React.FC<FileUploadProps> = ({ portcoId, onUploadComple
   // Get the currently selected file
   const selectedFile = uploadedFiles.find(f => f.id === selectedFileId);
 
-  const handleDragOver = useCallback((e: React.DragEvent) => {
+  const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(true);
-  }, []);
+  };
 
-  const handleDragLeave = useCallback((e: React.DragEvent) => {
+  const handleDragLeave = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-  }, []);
+  };
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
+  const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
 
     const files = Array.from(e.dataTransfer.files);
     handleFilesSelect(files);
-  }, []);
+  };
 
   const validateFile = (file: File): string | null => {
     const validTypes = [
@@ -378,7 +378,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ portcoId, onUploadComple
           }
 
           resolve({
-            id: `file-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            id: `file-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
             name: file.name,
             size: file.size,
             type: isCSV ? 'csv' : 'xlsx',
@@ -451,8 +451,6 @@ export const FileUpload: React.FC<FileUploadProps> = ({ portcoId, onUploadComple
         const baseName = parsedFiles[0].name.replace(/\.[^/.]+$/, '');
         setDatasetName(baseName);
       }
-
-      onUploadComplete?.();
     } catch (error) {
       setUploadError(String(error));
     } finally {
@@ -534,12 +532,22 @@ export const FileUpload: React.FC<FileUploadProps> = ({ portcoId, onUploadComple
       columnMappings[mapping.originalField] = mapping.mappedField;
     });
 
+    // Transform file data to records using mapped field names
+    const records = selectedFile.rows.map(row => {
+      const record: Record<string, unknown> = {};
+      selectedFile.headers.forEach((header, index) => {
+        const mappedField = columnMappings[header] || header;
+        record[mappedField] = row[index] || null;
+      });
+      return record;
+    });
+
     const metadata = {
       name: datasetName,
       description: datasetDescription,
       categories: selectedCategories,
       field_mappings: currentFileMappings,
-      column_mappings: columnMappings,  // For database table column names
+      column_mappings: columnMappings,
       original_filename: selectedFile.name,
       row_count: selectedFile.rows.length,
       column_count: selectedFile.headers.length,
@@ -547,29 +555,39 @@ export const FileUpload: React.FC<FileUploadProps> = ({ portcoId, onUploadComple
     };
 
     try {
-      // Create form data with the file and metadata
-      const formData = new FormData();
-      formData.append('file', selectedFile.rawFile);
-      formData.append('table_name', tableName);
-      formData.append('metadata', JSON.stringify(metadata));
+      // Save metadata to S3
+      await s3Api.saveData(
+        `datasets/${portcoId}`,
+        `${tableName}_metadata.json`,
+        metadata
+      );
 
-      const response = await api.post(`/files/upload-s3/${portcoId}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      // Insert records into database table
+      const response = await tablesApi.createRecords(
+        tableName,
+        records,
+        'data',
+        undefined,
+        // Build data model from field mappings
+        currentFileMappings.reduce((acc, mapping) => {
+          acc[mapping.mappedField] = mapping.dataType;
+          return acc;
+        }, {} as Record<string, unknown>)
+      );
 
-      if (response.data.success) {
+      const responseData = response.data as { success?: boolean; error?: string; data?: unknown[] };
+
+      if (responseData.success !== false && !responseData.error) {
         setSaveSuccess(true);
         setSaveResult({
-          tableName: response.data.data?.table_name,
-          rowCount: response.data.data?.row_count,
-          columnCount: response.data.data?.column_count,
-          tableCreated: response.data.data?.table_created,
+          tableName: tableName,
+          rowCount: records.length,
+          columnCount: selectedFile.headers.length,
+          tableCreated: true,
         });
         onUploadComplete?.();
       } else {
-        setSaveError(response.data.message || 'Failed to save dataset');
+        setSaveError(responseData.error || 'Failed to save dataset');
       }
     } catch (error: unknown) {
       const err = error as { response?: { data?: { detail?: string } } };
@@ -595,13 +613,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ portcoId, onUploadComple
   return (
     <div className="space-y-4">
       {/* Upload Area */}
-      <Card className="p-5">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
-            Upload Data File
-          </h3>
-        </div>
-
+      <Card className={uploadedFiles.length > 0 ? "p-4" : "p-5"}>
         {/* Error Message */}
         {uploadError && (
           <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
@@ -609,28 +621,59 @@ export const FileUpload: React.FC<FileUploadProps> = ({ portcoId, onUploadComple
           </div>
         )}
 
-        {/* Drop Zone */}
+        {/* Drop Zone - Compact when files exist, Full when empty */}
         <div
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${
+          className={`border-2 border-dashed rounded-xl transition-colors ${
             isDragging
               ? 'border-teal-500 bg-teal-50 dark:bg-teal-900/20'
               : 'border-gray-300 dark:border-gray-700 hover:border-teal-400'
-          }`}
+          } ${uploadedFiles.length > 0 ? 'p-3' : 'p-8 text-center'}`}
         >
           {isProcessing ? (
-            <div className="flex flex-col items-center">
-              <svg className="animate-spin h-10 w-10 text-teal-600 mb-4" fill="none" viewBox="0 0 24 24">
+            <div className={`flex items-center ${uploadedFiles.length > 0 ? 'justify-center gap-3' : 'flex-col'}`}>
+              <svg className={`animate-spin text-teal-600 ${uploadedFiles.length > 0 ? 'h-5 w-5' : 'h-10 w-10 mb-4'}`} fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              <p className="text-lg font-medium" style={{ color: 'var(--text-primary)' }}>
+              <p className={`font-medium ${uploadedFiles.length > 0 ? 'text-sm' : 'text-lg'}`} style={{ color: 'var(--text-primary)' }}>
                 Processing files...
               </p>
             </div>
+          ) : uploadedFiles.length > 0 ? (
+            /* Compact drop zone when files exist */
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center flex-shrink-0">
+                  <svg className="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                  </svg>
+                </div>
+                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                  Drop more files here or
+                </p>
+              </div>
+              <input
+                type="file"
+                accept=".csv,.xlsx"
+                onChange={handleInputChange}
+                className="hidden"
+                id="file-upload"
+                multiple
+              />
+              <Button
+                variant="outline"
+                type="button"
+                size="sm"
+                onClick={() => document.getElementById('file-upload')?.click()}
+              >
+                Browse Files
+              </Button>
+            </div>
           ) : (
+            /* Full drop zone when no files */
             <>
               <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
                 <svg className="w-8 h-8 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -648,13 +691,13 @@ export const FileUpload: React.FC<FileUploadProps> = ({ portcoId, onUploadComple
                 accept=".csv,.xlsx"
                 onChange={handleInputChange}
                 className="hidden"
-                id="file-upload"
+                id="file-upload-empty"
                 multiple
               />
               <Button
                 variant="outline"
                 type="button"
-                onClick={() => document.getElementById('file-upload')?.click()}
+                onClick={() => document.getElementById('file-upload-empty')?.click()}
               >
                 Browse Files
               </Button>

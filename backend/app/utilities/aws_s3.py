@@ -20,18 +20,18 @@ TextData = str
 SupportedDataTypes = Union[JSONData, ParquetData, BinaryData, TextData]
 
 
-from .. import globals
-ENVIRONMENT = globals.ENVIRONMENT
-IS_PRODUCTION = globals.IS_PRODUCTION
-AWS_REGION = globals.AWS_REGION
-AWS_PROFILE = globals.AWS_PROFILE
-TENANT_NAME = globals.TENANT_NAME
-DBHOST = globals.DBHOST
-DBUSER = globals.DBUSER
-DBPORT = globals.DBPORT
-DEFAULT_DB = globals.DEFAULT_DB
-S3_BUCKET = globals.S3_BUCKET
-S3_ROOT_PREFIX = globals.S3_ROOT_PREFIX
+from .. import config as cfg
+ENVIRONMENT = cfg.ENVIRONMENT
+IS_PRODUCTION = cfg.IS_PRODUCTION
+AWS_REGION = cfg.AWS_REGION
+AWS_PROFILE = cfg.AWS_PROFILE
+TENANT_NAME = cfg.TENANT_NAME
+DBHOST = cfg.DBHOST
+DBUSER = cfg.DBUSER
+DBPORT = cfg.DBPORT
+DEFAULT_DB = cfg.DEFAULTDB
+S3_BUCKET = cfg.S3_BUCKET
+S3_ROOT_PREFIX = cfg.S3_ROOT_PREFIX
 
 
 def get_s3_client(profile_name: str = ""):
@@ -380,6 +380,118 @@ class SaveDataInS3Model:
     prefix: str = ""
     file_name: str = f"file_{datetime.now()}.txt"
     data: SupportedDataTypes = []
+
+
+# Content type mapping for file uploads
+CONTENT_TYPES = {
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.png': 'image/png',
+    '.gif': 'image/gif',
+    '.webp': 'image/webp',
+    '.pdf': 'application/pdf',
+    '.json': 'application/json',
+    '.csv': 'text/csv',
+    '.txt': 'text/plain',
+    '.html': 'text/html',
+    '.xml': 'application/xml',
+    '.zip': 'application/zip',
+    '.mp4': 'video/mp4',
+    '.mp3': 'audio/mpeg',
+    '.doc': 'application/msword',
+    '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    '.xls': 'application/vnd.ms-excel',
+    '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+}
+
+
+async def upload_from_browser_to_s3(
+    files: List[Dict[str, Any]],
+    bucket_name: str
+) -> Dict[str, Any]:
+    """
+    Upload one or more files (from browser) directly to S3.
+
+    Args:
+        files: List of file dictionaries, each containing:
+            - file_content: Raw bytes of the file
+            - file_name: Original filename (for logging and content type detection)
+            - s3_key: Full S3 key path where file will be stored
+        bucket_name: S3 bucket name
+
+    Returns:
+        Dict with:
+            - status: "success" if all files uploaded, "partial" if some failed, "error" if all failed
+            - uploaded: List of successfully uploaded file info
+            - failed: List of failed uploads with error details
+            - total: Total number of files
+            - success_count: Number of successfully uploaded files
+    """
+    uploaded = []
+    failed = []
+
+    for file_info in files:
+        file_content = file_info.get("file_content")
+        file_name = file_info.get("file_name", "unknown")
+        s3_key = file_info.get("s3_key")
+
+        if not file_content or not s3_key:
+            failed.append({
+                "file_name": file_name,
+                "error": "Missing file_content or s3_key"
+            })
+            continue
+
+        try:
+            # Determine content type from extension
+            ext = os.path.splitext(file_name)[1].lower()
+            content_type = CONTENT_TYPES.get(ext, 'application/octet-stream')
+
+            print(f"⬆️  Uploading {file_name} -> s3://{bucket_name}/{s3_key}")
+
+            s3_client.put_object(
+                Bucket=bucket_name,
+                Key=s3_key,
+                Body=file_content,
+                ContentType=content_type
+            )
+
+            print(f"✅ Successfully uploaded {file_name}")
+
+            uploaded.append({
+                "file_name": file_name,
+                "s3_key": s3_key,
+                "content_type": content_type,
+                "size_bytes": len(file_content)
+            })
+
+        except Exception as e:
+            print(f"❌ Error uploading {file_name}: {e}")
+            failed.append({
+                "file_name": file_name,
+                "s3_key": s3_key,
+                "error": str(e)
+            })
+
+    # Determine overall status
+    total = len(files)
+    success_count = len(uploaded)
+
+    if success_count == total:
+        status = "success"
+    elif success_count > 0:
+        status = "partial"
+    else:
+        status = "error"
+
+    return {
+        "status": status,
+        "uploaded": uploaded,
+        "failed": failed,
+        "total": total,
+        "success_count": success_count,
+        "bucket": bucket_name
+    }
 
 
 async def save_data_in_s3(request: SaveDataInS3Model) -> None:

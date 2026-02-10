@@ -18,6 +18,7 @@ import { Dashboard } from './features/dashboard/components';
 import { Settings } from './features/settings/components';
 import { App1Module, App2Module, App3Module } from './features/applications/components';
 import { DataPage } from './features/applications/components/DataPage';
+import { ChatPage } from './features/chat/components';
 
 // i18n
 import './i18n';
@@ -53,6 +54,10 @@ const themeClasses = ['light', 'dark', 'ocean', 'forest', 'blossom', 'sunset'];
 // Tenant Initializer Component
 const TenantInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const dispatch = useAppDispatch();
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const tenantInitialized = useAppSelector((state) => state.tenant?.isInitialized ?? false);
+  const tenantLoading = useAppSelector((state) => state.tenant?.isLoading ?? false);
+  const [initAttempted, setInitAttempted] = React.useState(false);
 
   useEffect(() => {
     // Initialize tenant on app load
@@ -60,14 +65,36 @@ const TenantInitializer: React.FC<{ children: React.ReactNode }> = ({ children }
       .unwrap()
       .then((config) => {
         console.log('[App] Tenant initialization complete:', config.tenant_name);
+        console.log('[App] Database configured:', config.db_name);
       })
       .catch((err) => {
         console.error('[App] Tenant initialization failed:', err);
+      })
+      .finally(() => {
+        setInitAttempted(true);
       });
   }, [dispatch]);
 
-  // Render children immediately since the app can function
-  // while tenant config is being fetched
+  // For authenticated users, wait for tenant to be initialized before proceeding
+  // This prevents race conditions where API calls are made before tenant config is set
+  if (isAuthenticated && !tenantInitialized && !initAttempted) {
+    // Show loading while tenant is being initialized
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        fontFamily: 'system-ui'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div>Initializing...</div>
+          {tenantLoading && <div style={{ fontSize: '0.875rem', opacity: 0.7 }}>Loading configuration</div>}
+        </div>
+      </div>
+    );
+  }
+
   return <>{children}</>;
 };
 
@@ -160,6 +187,7 @@ const AppRoutes: React.FC = () => {
         >
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
+          <Route path="chat" element={<ChatPage />} />
           <Route path="data" element={<DataPage appName="data" />} />
           <Route path="settings" element={<Settings />} />
           <Route path="settings/:tab" element={<Settings />} />

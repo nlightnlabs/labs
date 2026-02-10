@@ -15,6 +15,7 @@ from app.api.v1.endpoints import (
     data,
     tenant,
     tables,
+    chats,
 )
 
 api_router = APIRouter()
@@ -30,3 +31,4 @@ api_router.include_router(notifications.router, prefix="/notifications", tags=["
 api_router.include_router(data.router, prefix="/data", tags=["Data Tables"])
 api_router.include_router(tables.router, prefix="/tables", tags=["Generic Tables CRUD"])
 api_router.include_router(tenant.router, prefix="/tenant", tags=["Tenant Configuration"])
+api_router.include_router(chats.router, prefix="/chats", tags=["Chat"])

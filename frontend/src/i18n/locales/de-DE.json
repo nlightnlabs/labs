@@ -56,6 +56,7 @@
     "confirmPassword": "Passwort bestätigen",
     "firstName": "Vorname",
     "lastName": "Nachname",
+    "companyName": "Firmenname",
     "rememberMe": "Angemeldet bleiben",
     "forgotPassword": "Passwort vergessen?",
     "noAccount": "Noch kein Konto?",
@@ -84,6 +85,7 @@
       "passwordMismatch": "Passwörter stimmen nicht überein",
       "firstNameRequired": "Vorname ist erforderlich",
       "lastNameRequired": "Nachname ist erforderlich",
+      "companyNameRequired": "Firmenname ist erforderlich",
       "acceptTermsRequired": "Sie müssen die Bedingungen akzeptieren",
       "accountLocked": "Konto gesperrt. Bitte versuchen Sie es in 15 Minuten erneut",
       "emailAlreadyExists": "Ein Konto mit dieser E-Mail existiert bereits"

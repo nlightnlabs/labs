@@ -36,10 +36,32 @@
     "settings": "Settings",
     "collapse": "Collapse",
     "expand": "Expand",
+    "chat": "Chat",
     "data": "Data",
     "app1": "Application 1",
     "app2": "Application 2",
     "app3": "Application 3"
+  },
+  "chat": {
+    "title": "AI Chat",
+    "welcome": "How can I help you today?",
+    "welcomeDescription": "Start a conversation by typing a message below or choose one of the suggestions.",
+    "inputPlaceholder": "Type your message...",
+    "newChat": "New Chat",
+    "noChats": "No chat history yet",
+    "untitledChat": "Untitled Chat",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "lastWeek": "Last 7 Days",
+    "older": "Older",
+    "startRecording": "Start voice input",
+    "stopRecording": "Stop recording",
+    "disclaimer": "AI can make mistakes. Please verify important information.",
+    "errorSending": "Sorry, there was an error processing your request. Please try again.",
+    "suggestion1": "What can you help me with?",
+    "suggestion2": "Summarize the latest data trends",
+    "suggestion3": "Help me analyze my dashboard metrics",
+    "suggestion4": "Explain how to use this platform"
   },
   "modules": {
     "tabs": {
@@ -102,6 +124,7 @@
     "confirmPassword": "Confirm Password",
     "firstName": "First Name",
     "lastName": "Last Name",
+    "companyName": "Company Name",
     "rememberMe": "Remember me",
     "forgotPassword": "Forgot password?",
     "noAccount": "Don't have an account?",
@@ -130,6 +153,7 @@
       "passwordMismatch": "Passwords do not match",
       "firstNameRequired": "First name is required",
       "lastNameRequired": "Last name is required",
+      "companyNameRequired": "Company name is required",
       "acceptTermsRequired": "You must accept the terms and conditions",
       "accountLocked": "Account locked. Please try again in 15 minutes",
       "emailAlreadyExists": "An account with this email already exists"

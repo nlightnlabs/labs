@@ -1,10 +1,37 @@
-// User Types
+// User Types - Updated to match database schema
 export type UserRole = 'admin' | 'manager' | 'user';
+export type AccessLevel = 'Super Admin' | 'Power User' | 'Individual' | 'Guest';
+export type UserType = 'Development' | 'Guest' | 'Production';
+export type UserStatus = 'Active' | 'Inactive' | 'Pending';
+export type UserStage = 'Enabled' | 'Pending' | 'Disabled';
 
 export interface User {
   id: string;
-  email?: string;
+  contact_id?: string | null;
+  first_name?: string;
+  last_name?: string;
   username?: string;
+  email?: string;
+  mobile_phone?: string;
+  job_title?: string;
+  company_name?: string;
+  tenant_name?: string;
+  access_level?: AccessLevel | string;
+  business_unit?: string;
+  avatar_url?: string;
+  user_type?: UserType | string;
+  status?: UserStatus | string;
+  stage?: UserStage | string;
+  creation_date?: string;
+  last_updated?: string;
+  notes?: string | null;
+  attachments?: unknown | null;
+  additional_data?: unknown | null;
+  // Computed/derived fields for backwards compatibility
+  role?: UserRole;
+  isActive?: boolean;
+  isVerified?: boolean;
+  // Legacy camelCase aliases (for components that haven't been updated)
   firstName?: string;
   lastName?: string;
   avatarUrl?: string;
@@ -15,11 +42,6 @@ export interface User {
   accessLevel?: string;
   businessUnit?: string;
   userType?: string;
-  status?: string;
-  stage?: string;
-  role: UserRole;
-  isActive: boolean;
-  isVerified: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -81,6 +103,7 @@ export interface RegisterData {
   password: string;
   firstName: string;
   lastName: string;
+  companyName: string;
   acceptTerms: boolean;
 }
 

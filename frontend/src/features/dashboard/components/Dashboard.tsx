@@ -67,7 +67,7 @@ export const Dashboard: React.FC = () => {
       {/* Welcome Header */}
       <div>
         <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
-          {t('dashboard.welcome', { name: user?.firstName || 'User' })}
+          {t('dashboard.welcome', { name: user?.first_name || user?.firstName || 'User' })}
         </h1>
         <p className="mt-1" style={{ color: 'var(--text-secondary)' }}>
           {t('dashboard.welcomeMessage')}

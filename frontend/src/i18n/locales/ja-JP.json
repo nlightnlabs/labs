@@ -56,6 +56,7 @@
     "confirmPassword": "パスワードを確認",
     "firstName": "名",
     "lastName": "姓",
+    "companyName": "会社名",
     "rememberMe": "ログイン状態を保持",
     "forgotPassword": "パスワードをお忘れですか？",
     "noAccount": "アカウントをお持ちでないですか？",
@@ -84,6 +85,7 @@
       "passwordMismatch": "パスワードが一致しません",
       "firstNameRequired": "名は必須です",
       "lastNameRequired": "姓は必須です",
+      "companyNameRequired": "会社名は必須です",
       "acceptTermsRequired": "利用規約に同意する必要があります",
       "accountLocked": "アカウントがロックされています。15分後に再試行してください",
       "emailAlreadyExists": "このメールアドレスのアカウントは既に存在します"

@@ -7,6 +7,41 @@ import { register, clearError } from '../slices/authSlice';
 
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
+interface PasswordRequirementsTooltipProps {
+  password: string;
+}
+
+const PasswordRequirementsTooltip: React.FC<PasswordRequirementsTooltipProps> = ({ password }) => {
+  return (
+    <div className="absolute left-0 top-full mt-2 z-50 w-64 bg-white rounded-lg shadow-lg border border-gray-200 p-3 text-sm">
+      <div className="absolute -top-2 left-4 w-3 h-3 bg-white border-l border-t border-gray-200 transform rotate-45"></div>
+      <p className="text-gray-600 font-medium mb-2">Password must contain:</p>
+      <ul className="space-y-1 text-gray-500">
+        <li className="flex items-center gap-2">
+          <span className={`w-1.5 h-1.5 rounded-full ${password.length >= 8 ? 'bg-green-500' : 'bg-gray-300'}`}></span>
+          At least 8 characters
+        </li>
+        <li className="flex items-center gap-2">
+          <span className={`w-1.5 h-1.5 rounded-full ${/[A-Z]/.test(password) ? 'bg-green-500' : 'bg-gray-300'}`}></span>
+          One uppercase letter
+        </li>
+        <li className="flex items-center gap-2">
+          <span className={`w-1.5 h-1.5 rounded-full ${/[a-z]/.test(password) ? 'bg-green-500' : 'bg-gray-300'}`}></span>
+          One lowercase letter
+        </li>
+        <li className="flex items-center gap-2">
+          <span className={`w-1.5 h-1.5 rounded-full ${/\d/.test(password) ? 'bg-green-500' : 'bg-gray-300'}`}></span>
+          One number
+        </li>
+        <li className="flex items-center gap-2">
+          <span className={`w-1.5 h-1.5 rounded-full ${/[@$!%*?&]/.test(password) ? 'bg-green-500' : 'bg-gray-300'}`}></span>
+          One special character (@$!%*?&)
+        </li>
+      </ul>
+    </div>
+  );
+};
+
 export const RegisterForm: React.FC = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
@@ -16,6 +51,7 @@ export const RegisterForm: React.FC = () => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
+    companyName: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -23,6 +59,7 @@ export const RegisterForm: React.FC = () => {
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showPasswordInfo, setShowPasswordInfo] = useState(false);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -33,6 +70,10 @@ export const RegisterForm: React.FC = () => {
 
     if (!formData.lastName.trim()) {
       newErrors.lastName = t('auth.errors.lastNameRequired');
+    }
+
+    if (!formData.companyName.trim()) {
+      newErrors.companyName = t('auth.errors.companyNameRequired');
     }
 
     if (!formData.email) {
@@ -72,6 +113,7 @@ export const RegisterForm: React.FC = () => {
         register({
           firstName: formData.firstName,
           lastName: formData.lastName,
+          companyName: formData.companyName,
           email: formData.email,
           password: formData.password,
           acceptTerms: formData.acceptTerms,
@@ -149,6 +191,17 @@ export const RegisterForm: React.FC = () => {
             </div>
 
             <Input
+              label={t('auth.companyName')}
+              type="text"
+              name="companyName"
+              value={formData.companyName}
+              onChange={handleChange}
+              error={errors.companyName}
+              placeholder="Acme Inc."
+              autoComplete="organization"
+            />
+
+            <Input
               label={t('auth.email')}
               type="email"
               name="email"
@@ -159,42 +212,42 @@ export const RegisterForm: React.FC = () => {
               autoComplete="email"
             />
 
-            <Input
-              label={t('auth.password')}
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              error={errors.password}
-              placeholder="Create a strong password"
-              autoComplete="new-password"
-            />
-
-            {/* Password Requirements */}
-            <div className="bg-gray-50 rounded-lg p-3 text-sm">
-              <p className="text-gray-600 font-medium mb-2">Password must contain:</p>
-              <ul className="space-y-1 text-gray-500">
-                <li className="flex items-center gap-2">
-                  <span className={`w-1.5 h-1.5 rounded-full ${formData.password.length >= 8 ? 'bg-green-500' : 'bg-gray-300'}`}></span>
-                  At least 8 characters
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className={`w-1.5 h-1.5 rounded-full ${/[A-Z]/.test(formData.password) ? 'bg-green-500' : 'bg-gray-300'}`}></span>
-                  One uppercase letter
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className={`w-1.5 h-1.5 rounded-full ${/[a-z]/.test(formData.password) ? 'bg-green-500' : 'bg-gray-300'}`}></span>
-                  One lowercase letter
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className={`w-1.5 h-1.5 rounded-full ${/\d/.test(formData.password) ? 'bg-green-500' : 'bg-gray-300'}`}></span>
-                  One number
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className={`w-1.5 h-1.5 rounded-full ${/[@$!%*?&]/.test(formData.password) ? 'bg-green-500' : 'bg-gray-300'}`}></span>
-                  One special character (@$!%*?&)
-                </li>
-              </ul>
+            {/* Password field with info tooltip */}
+            <div>
+              <div className="flex items-center gap-1.5 mb-1.5 relative">
+                <label className="block text-sm font-medium text-gray-700">
+                  {t('auth.password')}
+                </label>
+                <div
+                  className="relative"
+                  onMouseEnter={() => setShowPasswordInfo(true)}
+                  onMouseLeave={() => setShowPasswordInfo(false)}
+                >
+                  <svg
+                    className="w-4 h-4 text-gray-400 hover:text-blue-500 cursor-help transition-colors"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  {showPasswordInfo && (
+                    <PasswordRequirementsTooltip password={formData.password} />
+                  )}
+                </div>
+              </div>
+              <Input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                error={errors.password}
+                placeholder="Create a strong password"
+                autoComplete="new-password"
+              />
             </div>
 
             <Input

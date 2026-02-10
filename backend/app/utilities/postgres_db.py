@@ -21,19 +21,19 @@ from .encryption import hash_text, match_encrypted_text
 # LOAD ENV
 # ============================================================================
 
-from .. import globals as gb
-ENVIRONMENT = gb.ENVIRONMENT
-IS_PRODUCTION = gb.IS_PRODUCTION
+from .. import config as cfg
+ENVIRONMENT = cfg.ENVIRONMENT
+IS_PRODUCTION = cfg.IS_PRODUCTION
 
-AWS_REGION = gb.AWS_REGION
-AWS_PROFILE = gb.AWS_PROFILE
-TENANT_NAME = gb.TENANT_NAME
-DBHOST = gb.DBHOST
-DBUSER = gb.DBUSER
-DBPORT = gb.DBPORT
-DEFAULT_DB = gb.DEFAULT_DB
-S3_BUCKET = gb.S3_BUCKET
-S3_ROOT_PREFIX = gb.S3_ROOT_PREFIX
+AWS_REGION = cfg.AWS_REGION
+AWS_PROFILE = cfg.AWS_PROFILE
+TENANT_NAME = cfg.TENANT_NAME
+DBHOST = cfg.DBHOST
+DBUSER = cfg.DBUSER
+DBPORT = cfg.DBPORT
+DEFAULT_DB = cfg.DEFAULTDB
+S3_BUCKET = cfg.S3_BUCKET
+S3_ROOT_PREFIX = cfg.S3_ROOT_PREFIX
 
 
 # ============================================================================
@@ -133,11 +133,13 @@ async def generate_rds_token(db_host:str = DBHOST, db_port:str = DBPORT, db_user
 
 
 async def db_connect(db_host, db_port, db_user, db_name):
-
-    print(f"db_host {db_host}\n")
-    print(f"db_port {db_port}\n")
-    print(f"db_user {db_user}\n")
-    print(f"db_name {db_name}\n")
+    print(f"\n{'='*60}", flush=True)
+    print(f"🔌 DATABASE CONNECTION:", flush=True)
+    print(f"   db_host: {db_host}", flush=True)
+    print(f"   db_port: {db_port}", flush=True)
+    print(f"   db_user: {db_user}", flush=True)
+    print(f"   🎯 db_name: {db_name}", flush=True)
+    print(f"{'='*60}\n", flush=True)
     
     password_token = await generate_rds_token(db_host=db_host, db_port=db_port, db_user=db_user, region=AWS_REGION)
     ssl_context=build_ssl_context()
@@ -518,14 +520,19 @@ async def update_records(request: DbQueryModel):
 
                 for r in records:
                     rid = r["id"]
+                    print(f"📝 Processing record with id: {rid}")
 
                     for field in update_fields:
                         if field not in r:
+                            print(f"  ⏭️ Skipping {field}: not in record")
                             continue
 
                         value = r[field]
                         if value is None or value == "":
+                            print(f"  ⏭️ Skipping {field}: value is None or empty (value={repr(value)})")
                             continue
+
+                        print(f"  ✅ Including {field}: {repr(value)[:50]}...")
 
                         model_entry = data_model.get(field, {})
 
@@ -606,6 +613,10 @@ async def update_records(request: DbQueryModel):
             # ----------------------------------------
             # Final SQL
             # ----------------------------------------
+            if not set_clause:
+                print("⚠️ WARNING: set_clause is empty! No fields to update.")
+                return {"error": "No fields to update - all values were empty or None"}
+
             sql = f"""
                 UPDATE {full_table_name}
                 SET {set_clause}
@@ -613,7 +624,11 @@ async def update_records(request: DbQueryModel):
                 RETURNING *;
             """
 
+            print(f"📝 UPDATE SQL: {sql}")
+            print(f"📝 PARAMS: {params}")
+
             rows = await conn.fetch(sql, *params)
+            print(f"📝 ROWS RETURNED: {len(rows)}")
 
             return [
                 {k: serialize_value(v) for k, v in dict(r).items()}

@@ -58,6 +58,9 @@ BASE_DB_NAME = "base"
 
 # Default tenant configuration (for localhost development)
 # Uses environment variables to match the configured database
+print(f"[TENANT MODULE LOAD] _DEFAULT_DEFAULTDB = '{_DEFAULT_DEFAULTDB}'")
+print(f"[TENANT MODULE LOAD] _DEFAULT_DBHOST = '{_DEFAULT_DBHOST}'")
+
 DEFAULT_TENANT = TenantConfig(
     tenant_name="base-tenant",
     db_host=_DEFAULT_DBHOST,
@@ -65,6 +68,8 @@ DEFAULT_TENANT = TenantConfig(
     s3_bucket=_DEFAULT_S3_BUCKET or "tenants-s3",
     s3_root_prefix=_DEFAULT_S3_ROOT_PREFIX or "base-tenant/",
 )
+
+print(f"[TENANT MODULE LOAD] DEFAULT_TENANT.db_name = '{DEFAULT_TENANT.db_name}'")
 
 
 # ============== Helper Functions ==============
@@ -114,13 +119,7 @@ async def lookup_tenant(tenant_name: str, db: Session) -> Optional[TenantInfo]:
     try:
         # Query the tenants table in the base database
         query = text("""
-            SELECT
-                tenant_name,
-                rds_endpoint,
-                database_name,
-                s3_bucket,
-                s3_root_prefix
-            FROM data.tenants
+            SELECT * from data.tenants
             WHERE tenant_name = :tenant_name
             AND is_active = true
         """)
@@ -129,6 +128,7 @@ async def lookup_tenant(tenant_name: str, db: Session) -> Optional[TenantInfo]:
         row = result.fetchone()
 
         if row:
+            print(f"tenant data:\n {row}")
             return TenantInfo(
                 tenant_name=row.tenant_name,
                 rds_endpoint=row.rds_endpoint,
@@ -184,34 +184,14 @@ async def get_tenant_config(
 
     state = get_tenant_state()
 
-    # Check for localhost/development
+    # Determine tenant name based on origin
     if "localhost" in origin or "127.0.0.1" in origin or "0.0.0.0" in origin:
-        print(f"[Tenant] Development mode - using default tenant")
-
-        set_tenant_config(
-            tenant_name=DEFAULT_TENANT.tenant_name,
-            db_host=DEFAULT_TENANT.db_host,
-            db_name=DEFAULT_TENANT.db_name,
-            s3_bucket=DEFAULT_TENANT.s3_bucket,
-            s3_root_prefix=DEFAULT_TENANT.s3_root_prefix,
-        )
-
-        # Reset storage provider to use new tenant config
-        reset_storage_provider()
-
-        config = state.config
-        return TenantConfigResponse(
-            tenant_name=config.tenant_name,
-            db_host=config.db_host,
-            db_name=config.db_name,
-            s3_bucket=config.s3_bucket,
-            s3_root_prefix=config.s3_root_prefix,
-            aws_region=config.aws_region,
-            initialized=True,
-        )
-
-    # Production - extract tenant from subdomain
-    tenant_name = extract_tenant_from_origin(origin)
+        # For localhost/development, use "base-tenant"
+        tenant_name = "base-tenant"
+        print(f"[Tenant] Development mode - looking up tenant: {tenant_name}")
+    else:
+        # Production - extract tenant from subdomain
+        tenant_name = extract_tenant_from_origin(origin)
 
     if not tenant_name:
         raise HTTPException(
@@ -230,7 +210,16 @@ async def get_tenant_config(
             detail=f"Tenant not found: {tenant_name}"
         )
 
-    # Configure global state with tenant settings
+    # Configure global state with tenant settings from database
+    print(f"[Tenant] ========== TENANT CONFIGURATION ==========")
+    print(f"[Tenant] Database lookup returned:")
+    print(f"[Tenant]   - tenant_name: {tenant_info.tenant_name}")
+    print(f"[Tenant]   - rds_endpoint: {tenant_info.rds_endpoint}")
+    print(f"[Tenant]   - database_name: {tenant_info.database_name}")
+    print(f"[Tenant]   - s3_bucket: {tenant_info.s3_bucket}")
+    print(f"[Tenant]   - s3_root_prefix: {tenant_info.s3_root_prefix}")
+    print(f"[Tenant] ============================================")
+
     set_tenant_config(
         tenant_name=tenant_info.tenant_name,
         db_host=tenant_info.rds_endpoint,
@@ -239,11 +228,19 @@ async def get_tenant_config(
         s3_root_prefix=tenant_info.s3_root_prefix,
     )
 
+    # Verify the state was set correctly
+    print(f"[Tenant] ========== STATE AFTER SET ==========")
+    print(f"[Tenant] state.DEFAULTDB: {state.DEFAULTDB}")
+    print(f"[Tenant] state.DBHOST: {state.DBHOST}")
+    print(f"[Tenant] state.is_initialized: {state.is_initialized}")
+    print(f"[Tenant] =========================================")
+
     # Reset storage provider to use new tenant config
     reset_storage_provider()
 
     config = state.config
     print(f"[Tenant] Configured tenant: {config.tenant_name}")
+    print(f"[Tenant] Database name: {config.db_name}")
     print(f"[Tenant] S3 Bucket: {config.s3_bucket}")
     print(f"[Tenant] S3 Prefix: {config.s3_root_prefix}")
 

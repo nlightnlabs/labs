@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardHeader, CardBody, Select, Toggle, Button } from '@/components/common';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { setThemeMode } from '@/store/slices/themeSlice';
+import { setThemeMode, themeOptions } from '@/store/slices/themeSlice';
 import { languages } from '@/i18n';
 import { ThemeMode } from '@/types';
 
@@ -18,11 +18,10 @@ export const PreferencesSettings: React.FC = () => {
     security: true,
   });
 
-  const themeOptions = [
-    { value: 'light', label: t('settings.preferences.themeLight') },
-    { value: 'dark', label: t('settings.preferences.themeDark') },
-    { value: 'system', label: t('settings.preferences.themeSystem') },
-  ];
+  const themeSelectOptions = themeOptions.map((theme) => ({
+    value: theme.id,
+    label: theme.name,
+  }));
 
   const languageOptions = languages.map((lang) => ({
     value: lang.code,
@@ -53,7 +52,7 @@ export const PreferencesSettings: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Select
               label={t('settings.preferences.theme')}
-              options={themeOptions}
+              options={themeSelectOptions}
               value={themeMode}
               onChange={handleThemeChange}
             />
@@ -71,29 +70,41 @@ export const PreferencesSettings: React.FC = () => {
             <h4 className="text-sm font-medium mb-3" style={{ color: 'var(--text-primary)' }}>
               Theme Preview
             </h4>
-            <div className="grid grid-cols-3 gap-3">
-              {['light', 'dark', 'system'].map((theme) => (
+            <div className="grid grid-cols-4 gap-3">
+              {themeOptions.map((theme) => (
                 <button
-                  key={theme}
-                  onClick={() => handleThemeChange(theme)}
+                  key={theme.id}
+                  onClick={() => handleThemeChange(theme.id)}
                   className={`p-4 rounded-lg border-2 transition-colors ${
-                    themeMode === theme
+                    themeMode === theme.id
                       ? 'border-primary-500'
                       : 'border-transparent hover:border-gray-300'
                   }`}
                   style={{ backgroundColor: 'var(--bg-hover)' }}
                 >
                   <div
-                    className={`w-full h-16 rounded-md mb-2 ${
-                      theme === 'dark'
-                        ? 'bg-gray-800'
-                        : theme === 'light'
-                        ? 'bg-white border border-gray-200'
-                        : 'bg-gradient-to-r from-white to-gray-800'
-                    }`}
+                    className="w-full h-16 rounded-md mb-2"
+                    style={{
+                      background: theme.id === 'dark'
+                        ? '#1F2937'
+                        : theme.id === 'light'
+                        ? '#FFFFFF'
+                        : theme.id === 'system'
+                        ? 'linear-gradient(to right, #FFFFFF 50%, #1F2937 50%)'
+                        : theme.id === 'ocean'
+                        ? 'linear-gradient(135deg, #0EA5E9, #38BDF8)'
+                        : theme.id === 'forest'
+                        ? 'linear-gradient(135deg, #10B981, #34D399)'
+                        : theme.id === 'blossom'
+                        ? 'linear-gradient(135deg, #D946EF, #F0ABFC)'
+                        : theme.id === 'sunset'
+                        ? 'linear-gradient(135deg, #F97316, #FDBA74)'
+                        : '#FFFFFF',
+                      border: theme.id === 'light' ? '1px solid #E5E7EB' : 'none',
+                    }}
                   />
-                  <p className="text-xs font-medium capitalize" style={{ color: 'var(--text-primary)' }}>
-                    {theme}
+                  <p className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>
+                    {theme.name}
                   </p>
                 </button>
               ))}

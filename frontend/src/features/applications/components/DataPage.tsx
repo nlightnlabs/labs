@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
-import { tablesApi, ColumnSchema } from '@/services/api';
+import { tablesApi } from '@/services/api';
 import { FileUpload } from '@/components/common/FileUpload';
 import { AddIcon, ViewIcon, DeleteIcon, UploadIcon, DownloadIcon, CloseIcon } from '@/components/icons';
 
@@ -72,8 +72,11 @@ export const DataPage: React.FC<DataPageProps> = () => {
     setIsLoadingTables(true);
     try {
       const response = await tablesApi.listTables('data');
-      const tables = response.data.tables.map((tableName: string) => {
-        // Extract table name from schema.tablename format
+      // New API returns query results as array of objects with table_name field
+      const queryResults = response.data as unknown as Array<{ table_name: string }>;
+      const tables = queryResults.map((row) => {
+        const tableName = row.table_name;
+        // Extract table name from schema.tablename format if needed
         const name = tableName.includes('.') ? tableName.split('.')[1] : tableName;
         return {
           id: name,
@@ -104,17 +107,28 @@ export const DataPage: React.FC<DataPageProps> = () => {
         tablesApi.getTableData(tableName, 'data'),
       ]);
 
+      // New API returns query results as array of objects
+      // Schema query returns: column_name, data_type, is_nullable, column_default, character_maximum_length
+      const schemaRows = schemaResponse.data as unknown as Array<{
+        column_name: string;
+        data_type: string;
+        is_nullable: string;
+        column_default: string | null;
+        character_maximum_length: number | null;
+      }>;
+
       // Process columns from schema
-      const cols: ColumnConfig[] = schemaResponse.data.columns.map((col: ColumnSchema) => ({
-        key: col.name,
-        label: col.name.split('_').map((word: string) => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
-        editable: !['id', 'created_at', 'updated_at', '_portco_id', '_created_at', '_updated_at'].includes(col.name),
-        type: col.type,
+      const cols: ColumnConfig[] = schemaRows.map((col) => ({
+        key: col.column_name,
+        label: col.column_name.split('_').map((word: string) => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
+        editable: !['id', 'created_at', 'updated_at', '_portco_id', '_created_at', '_updated_at'].includes(col.column_name),
+        type: col.data_type,
       }));
       setColumns(cols);
 
-      // Set data
-      setData(dataResponse.data.data || []);
+      // Set data - handle both old and new response formats
+      const tableData = dataResponse.data.data || dataResponse.data || [];
+      setData(Array.isArray(tableData) ? tableData : []);
 
       // Reset filters
       const emptyFilters: Record<string, ColumnFilter> = {};

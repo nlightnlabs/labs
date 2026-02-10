@@ -6,6 +6,7 @@ import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { logout } from '@/features/auth/slices/authSlice';
 import { toggleMobileNav } from '@/store/slices/navigationSlice';
 import { setThemeMode, themeOptions } from '@/store/slices/themeSlice';
+import { useUserAvatar } from '@/hooks';
 import { Notification, ThemeMode } from '@/types';
 
 import {appName} from '../../config';
@@ -46,6 +47,12 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showThemeMenu, setShowThemeMenu] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Fetch avatar from S3 using the stored path
+  const { avatarDataUrl } = useUserAvatar({
+    userId: user?.id,
+    avatarPath: user?.avatar_url || user?.avatarUrl,
+  });
 
   // Mock notifications for demo
   const notifications: Notification[] = [];
@@ -348,17 +355,18 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
         <Dropdown
           trigger={
             <div className="nav-item-btn flex items-center gap-3 p-1.5 rounded-lg transition-colors cursor-pointer">
+              {/* Profile Image - fetched from S3 using avatar_url path */}
               <Avatar
-                src={user?.avatarUrl}
-                name={user ? `${user.firstName} ${user.lastName}` : undefined}
+                src={avatarDataUrl || undefined}
+                name={user ? `${user.first_name || user.firstName || ''} ${user.last_name || user.lastName || ''}` : undefined}
                 size="sm"
               />
               <div className="hidden md:block text-left">
                 <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-                  {user ? `${user.firstName} ${user.lastName}` : 'User'}
+                  {user ? `${user.first_name || user.firstName || ''} ${user.last_name || user.lastName || ''}` : 'User'}
                 </p>
                 <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-                  {user?.email}
+                  {user?.job_title || user?.jobTitle || user?.username}
                 </p>
               </div>
               <svg className="w-4 h-4 hidden md:block" style={{ color: 'var(--text-tertiary)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">

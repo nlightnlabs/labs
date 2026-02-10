@@ -21,7 +21,8 @@ export default defineConfig({
   server: {
     port: 3000,
     proxy: {
-      '/api': {
+      // Proxy all backend routes to FastAPI
+      '^/(db|s3|tenant_config|claude|map_fields|send_email|runApp|api|auth|test|health)': {
         target: 'http://localhost:8000',
         changeOrigin: true,
       },

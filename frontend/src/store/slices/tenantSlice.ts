@@ -18,7 +18,25 @@ export const initializeTenant = createAsyncThunk<TenantConfig, void>(
   async (_, { rejectWithValue }) => {
     try {
       const response = await tenantApi.initConfig();
-      return response.data;
+      const data = response.data as {
+        tenant_name?: string;
+        db_host?: string;
+        db_name?: string;
+        s3_bucket?: string;
+        s3_roof_prefix?: string;  // Note: backend has typo "roof" instead of "root"
+        s3_root_prefix?: string;
+      };
+
+      // Transform backend response to TenantConfig format
+      return {
+        tenant_name: data.tenant_name || '',
+        db_host: data.db_host || '',
+        db_name: data.db_name || '',
+        s3_bucket: data.s3_bucket || '',
+        s3_root_prefix: data.s3_root_prefix || data.s3_roof_prefix || '',
+        aws_region: 'us-west-1',  // Default region
+        initialized: !!(data.tenant_name && data.db_host),
+      };
     } catch (error: unknown) {
       const err = error as { response?: { data?: { detail?: string } }; message?: string };
       return rejectWithValue(err.response?.data?.detail || err.message || 'Failed to initialize tenant');
@@ -34,7 +52,25 @@ export const fetchCurrentTenant = createAsyncThunk<TenantConfig, void>(
   async (_, { rejectWithValue }) => {
     try {
       const response = await tenantApi.getCurrentConfig();
-      return response.data;
+      const data = response.data as {
+        tenant_name?: string;
+        db_host?: string;
+        db_name?: string;
+        s3_bucket?: string;
+        s3_roof_prefix?: string;
+        s3_root_prefix?: string;
+      };
+
+      // Transform backend response to TenantConfig format
+      return {
+        tenant_name: data.tenant_name || '',
+        db_host: data.db_host || '',
+        db_name: data.db_name || '',
+        s3_bucket: data.s3_bucket || '',
+        s3_root_prefix: data.s3_root_prefix || data.s3_roof_prefix || '',
+        aws_region: 'us-west-1',
+        initialized: !!(data.tenant_name && data.db_host),
+      };
     } catch (error: unknown) {
       const err = error as { response?: { data?: { detail?: string } }; message?: string };
       return rejectWithValue(err.response?.data?.detail || err.message || 'Failed to fetch tenant config');
